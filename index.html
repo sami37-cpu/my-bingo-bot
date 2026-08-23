@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY BINGO</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { background-color: #0b0914; color: white; font-family: sans-serif; margin: 0; padding: 15px; text-align: center; }
+        h1 { font-size: 26px; font-weight: 800; color: #ffca28; margin-bottom: 20px; }
+        .stake-card { background: #151128; border-radius: 20px; padding: 25px; margin-top: 20px; border: 1px solid #231c3d; }
+        .play-btn { background: #00d26a; border: none; color: #000; font-size: 20px; font-weight: bold; padding: 16px; border-radius: 30px; width: 100%; cursor: pointer; margin-top: 15px; }
+        .balance-label { color: #7f7b97; font-size: 13px; margin-top: 20px; font-weight: 600; }
+        .balance-val { font-size: 36px; font-weight: bold; margin-top: 5px; }
+        .bingo-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 15px; max-height: 350px; overflow-y: auto; background: #151128; padding: 8px; border-radius: 12px; }
+        .cell { background: #201a38; border-radius: 6px; padding: 8px 0; font-size: 12px; font-weight: bold; }
+        .cell.drawn { background: #ff9800; color: #000; }
+        .status-box { background: #1d1735; padding: 15px; border-radius: 12px; margin-top: 15px; font-size: 14px; color: #a19dae; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0c1d; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #1c1733; }
+        .nav-item { color: #6d6985; font-size: 11px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>MY BINGO</h1>
+
+    <div id="home-screen" class="stake-card">
+        <div style="color: #8c88a5; font-size: 13px; font-weight: 600;">CHOOSE YOUR STAKE</div>
+        <button class="play-btn" onclick="startBingoGame()">▶ PLAY 10</button>
+        <div class="balance-label">WALLET BALANCE</div>
+        <div class="balance-val" id="user-balance">20</div>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        <div class="status-box" id="game-status">ቁጥሮች ለመውጣት በመዘጋጀት ላይ ናቸው...</div>
+        <div class="bingo-board" id="board"></div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item">🎮<br>GAME</div>
+        <div class="nav-item">🏆<br>SCORES</div>
+        <div class="nav-item">🕒<br>HISTORY</div>
+        <div class="nav-item">💼<br>WALLET</div>
+        <div class="nav-item">👤<br>PROFILE</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        let names = ["አዲሱ", "ሄኖክ", "ዳምጠው", "ኤላ"];
+        let prizes = [850, 800, 720, 910, 630];
+
+        function startBingoGame() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let i = 1; i <= 500; i++) {
+                let cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = `num-${i}`;
+                cell.innerText = i;
+                board.appendChild(cell);
+            }
+            let winnerName = names[Math.floor(Math.random() * names.length)];
+            let winnerPrize = prizes[Math.floor(Math.random() * prizes.length)];
+            let count = 0;
+            let interval = setInterval(() => {
+                count++;
+                let randNum = Math.floor(Math.random() * 500) + 1;
+                let cell = document.getElementById(`num-${randNum}`);
+                if (cell) cell.classList.add('drawn');
+                document.getElementById('game-status').innerText = `ቁጥሮች በመውጣት ላይ ናቸው... (#${count})`;
+                if (count >= 12) {
+                    clearInterval(interval);
+                    document.getElementById('game-status').innerHTML = 
+                        `<b style="color:#00d26a; font-size:16px;">🎉 Bingo! ደራሽ ደርሷል!</b><br><b>አሸናፊ:</b> ${winnerName} (${winnerPrize} ብር)`;
+                }
+            }, 700);
+        }
+    </script>
+</body>
+</html>
